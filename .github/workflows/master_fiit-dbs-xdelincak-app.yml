@@ -31,4 +31,4 @@ jobs:
       with:
         app-name: 'fiit-dbs-xdelincak-app'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_d3df4015c0804f6c9005442f6446bb37 }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_08c22fb345214162b21b945aea12150f }}
