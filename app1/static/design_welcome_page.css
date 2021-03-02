@@ -14,15 +14,14 @@ h2 {
 }
 
 p, ul {
-    text-align: center;
+    text-align: left;
     font-weight: bold;
     font-size: 20px;
     margin-right: 150px;
 }
 
-ul, a {
-    margin-right: 50px;
-    list-style-position: inside;
+article {
+    margin-left: 42%;
 }
 
 a, a:visited {

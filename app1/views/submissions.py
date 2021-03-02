@@ -5,6 +5,8 @@ from django.db import connection
 
 
 def is_string(pa_string):
+    if pa_string is None:
+        return None
     prog = re.compile("^[a-zA-Z_]+$")
     if prog.match(pa_string):
         return pa_string
@@ -13,6 +15,8 @@ def is_string(pa_string):
 
 
 def is_number(pa_string):
+    if pa_string is None:
+        return None
     prog = re.compile("^[0-9]+$")
     if prog.match(pa_string):
         return int(pa_string)
@@ -40,33 +44,36 @@ def make_dict_from_data(pa_data):
     return result
 
 
-def get_list_from_GET(request):
-    page = request.GET.get("page", '1')
-    page = is_number(page)
-    if page is None:
-        return JsonResponse({"Error" : "Volam sandare."})
+def extract_data_from_get(request, pa_key, def_value, pa_is_number=True):
+    temp = request.GET.get(pa_key, def_value)
+    if pa_is_number:
+        if is_number(temp) is not None:
+            return is_number(temp)
+        else:
+            return int(def_value)
+    else:
+        if is_string(temp) is not None:
+            return is_string(temp)
+        else:
+            return def_value
 
-    per_page = request.GET.get("per_page", '10')
-    per_page = is_number(per_page)
-    if per_page is None:
-        return JsonResponse({"Error": "Volam sandare."})
+
+def get_list_from_GET(request):
+    page = extract_data_from_get(request, "page", "1")
+    per_page = extract_data_from_get(request, "per_page", "10")
+    order_by = extract_data_from_get(request, "order_by", None, pa_is_number=False)
 
     cursor = connection.cursor()
-    query = "SELECT " \
-            + "id, " \
-            + "br_court_name, " \
-            + "kind_name, " \
-            + "cin, " \
-            + "registration_date, " \
-            + "corporate_body_name, " \
-            + "br_section, " \
-            + "br_insertion, " \
-            + "text, " \
-            + "street, " \
-            + "postal_code, " \
-            + "city " \
-            + "FROM ov.or_podanie_issues "
-    query = query + "LIMIT " + str(per_page)
+    columns = ["id", "br_court_name", "kind_name", "cin", "registration_date", "corporate_body_name",
+               "br_section", "br_insertion", "text", "street", "postal_code", "city"]
+    query = "SELECT "
+    for x in columns:
+        if x is columns[len(columns)-1]:
+            query = query + x + " "
+        else:
+            query = query + x + ", "
+    query = query + "FROM ov.or_podanie_issues "
+    query = query + "LIMIT " + str(per_page) + " "
     query = query + "OFFSET " + str(page * per_page) + ";"
 
     cursor.execute(query)
