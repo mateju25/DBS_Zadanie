@@ -3,11 +3,10 @@ import re
 from django.http import JsonResponse
 from django.db import connection
 
-
 def is_string(pa_string):
     if pa_string is None:
         return None
-    prog = re.compile("^[a-zA-Z_]+$")
+    prog = re.compile("^[a-zA-Z_., ]+$")
     if prog.match(pa_string):
         return pa_string
     else:
@@ -62,6 +61,10 @@ def get_list_from_GET(request):
     page = extract_data_from_get(request, "page", "1")
     per_page = extract_data_from_get(request, "per_page", "10")
     order_by = extract_data_from_get(request, "order_by", None, pa_is_number=False)
+    order_type = extract_data_from_get(request, "order_type", None, pa_is_number=False)
+    corporate_body_name = extract_data_from_get(request, "corporate_body_name", None, pa_is_number=False)
+    cin = extract_data_from_get(request, "cin", None, pa_is_number=False)
+    city = extract_data_from_get(request, "city", None, pa_is_number=False)
 
     cursor = connection.cursor()
     columns = ["id", "br_court_name", "kind_name", "cin", "registration_date", "corporate_body_name",
@@ -73,6 +76,21 @@ def get_list_from_GET(request):
         else:
             query = query + x + ", "
     query = query + "FROM ov.or_podanie_issues "
+
+    if corporate_body_name is not None or cin is not None or city is not None:
+        query = query + "WHERE 2 = 1"
+        if corporate_body_name is not None:
+            query = query + " OR corporate_body_name = '" + corporate_body_name + "' "
+        if cin is not None:
+            query = query + " OR cin = " + cin + " "
+        if city is not None:
+            query = query + " OR city = '" + city + "' "
+
+    if order_by is not None and order_by in columns:
+        query = query + "ORDER BY " + order_by + " "
+    if order_type is not None and order_type in ["asc", "desc"]:
+        query = query + order_type + " "
+
     query = query + "LIMIT " + str(per_page) + " "
     query = query + "OFFSET " + str(page * per_page) + ";"
 
