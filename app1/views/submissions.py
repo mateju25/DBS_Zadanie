@@ -5,7 +5,7 @@ from app1.functions.post_function import post_new_data
 # rozhodne o aku metodu ide (GET, POST)
 def choose_method(request):
     if request.method == "GET":
-        get_list_from_get(request)
+        return get_list_from_get(request)
     elif request.method == "POST":
-        post_new_data(request)
+        return post_new_data(request)
 
