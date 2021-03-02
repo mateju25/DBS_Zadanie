@@ -13,19 +13,20 @@ def verify_parameter(request, pa_key, errors, pa_is_number=False):
     temp = request.POST.get(pa_key, -1)
     if temp == -1:
         reasons.append("required")
-    if pa_is_number:
-        if is_number(temp) is not None:
-            temp = int(is_number(temp))
-        else:
-            reasons.append("not_number")
     else:
-        if is_string(temp) is not None:
-            temp = is_string(temp)
+        if pa_is_number:
+            if is_number(temp) is not None:
+                temp = int(is_number(temp))
+            else:
+                reasons.append("not_number")
         else:
-            reasons.append("required")
+            if is_string(temp) is not None:
+                temp = is_string(temp)
+            else:
+                reasons.append("required")
 
     if len(reasons) != 0:
-        errors.append({"field": "br_court_name", "reasons": reasons})
+        errors.append({"field": pa_key, "reasons": reasons})
 
     return temp
 
