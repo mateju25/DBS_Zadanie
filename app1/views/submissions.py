@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.db import connection
 
 
+# ak je string zo spravnymi znakmi vrati ho, inak vrati None
 def is_string(pa_string):
     if pa_string is None:
         return None
@@ -15,6 +16,7 @@ def is_string(pa_string):
         return None
 
 
+# ak je string zo spravnymi znakmi vrati ho skonvertovany na cislo, inak vrati None
 def is_number(pa_string):
     if pa_string is None:
         return None
@@ -25,6 +27,7 @@ def is_number(pa_string):
         return None
 
 
+# vytvori z listu listov, list slovnikov (kvoli zadaniu)
 def make_dict_from_data(pa_data):
     result = []
     for x in pa_data:
@@ -45,6 +48,7 @@ def make_dict_from_data(pa_data):
     return result
 
 
+# vytiahne z pola GET dany parameter, skontroluje ci je platny, ak sa tam nenachadza vrati je default hodnotu
 def extract_data_from_get(request, pa_key, def_value, pa_is_number=True):
     temp = request.GET.get(pa_key, def_value)
     if pa_is_number:
@@ -59,6 +63,7 @@ def extract_data_from_get(request, pa_key, def_value, pa_is_number=True):
             return def_value
 
 
+# vrati json s datami, ktore odpovedaju parametrom z pola GET
 def get_list_from_get(request):
     page = extract_data_from_get(request, "page", "1")
     per_page = extract_data_from_get(request, "per_page", "10")
@@ -67,61 +72,69 @@ def get_list_from_get(request):
     corporate_body_name = extract_data_from_get(request, "corporate_body_name", None, pa_is_number=False)
     cin = extract_data_from_get(request, "cin", None)
     city = extract_data_from_get(request, "city", None, pa_is_number=False)
-    registration_date_lte = (extract_data_from_get(request, "registration_date_lte", None, pa_is_number=False)).split()[0]
-    registration_date_gte = (extract_data_from_get(request, "registration_date_gte", None, pa_is_number=False)).split()[0]
+    registration_date_lte = extract_data_from_get(request, "registration_date_lte", None, pa_is_number=False)
+    if registration_date_lte is not None:
+        registration_date_lte = (registration_date_lte.split())[0]
+    registration_date_gte = extract_data_from_get(request, "registration_date_gte", None, pa_is_number=False)
+    if registration_date_gte is not None:
+        registration_date_gte = (registration_date_gte.split())[0]
+
+    if order_by is not None:
+        order_by_statement = "ORDER BY "
+        if order_type in ["asc", "desc"]:
+            order_by_statement = order_by_statement + order_by + " " + order_type + " "
+        else:
+            order_by_statement = order_by_statement + order_by + " "
+    else:
+        order_by_statement = ""
 
     cursor = connection.cursor()
-    columns = ["id", "br_court_name", "kind_name", "cin", "registration_date", "corporate_body_name",
-               "br_section", "br_insertion", "text", "street", "postal_code", "city"]
-    query = "SELECT "
-    for x in columns:
-        if x is columns[len(columns)-1]:
-            query = query + x + " "
-        else:
-            query = query + x + ", "
-    query = query + "FROM ov.or_podanie_issues "
-    count_query = "SELECT COUNT(id) FROM ov.or_podanie_issues "
+    cursor.execute("PREPARE get_list(text, int, text, int, date, int, date, int, int, int) AS "
+                   "SELECT id, br_court_name, kind_name, cin, registration_date, corporate_body_name, "
+                   "br_section, br_insertion, text, street, postal_code, city FROM ov.or_podanie_issues "
+                   "WHERE ((corporate_body_name = $1) OR (cin = $2) OR (city = $3) OR (1 = $4)) "
+                   "AND ((registration_date <= $5) OR (1 = $6)) AND ((registration_date >= $7) OR (1 = $8)) "
+                   + order_by_statement +
+                   "LIMIT $9 OFFSET $10; ")
+    cursor.execute("PREPARE get_count(text, int, text, int, date, int, date, int) AS "
+                   "SELECT COUNT(id) "
+                   "FROM ov.or_podanie_issues "
+                   "WHERE ((corporate_body_name = $1) OR (cin = $2) OR (city = $3) OR (1 = $4)) "
+                   "AND ((registration_date <= $5) OR (1 = $6)) AND ((registration_date >= $7) OR (1 = $8)) ")
 
-    if corporate_body_name is not None or cin is not None or city is not None:
-        count_query = count_query + "WHERE (2 = 1"
-        query = query + "WHERE (2 = 1"
-        if corporate_body_name is not None:
-            query = query + " OR corporate_body_name = '" + corporate_body_name + "' "
-            count_query = count_query + " OR corporate_body_name = '" + corporate_body_name + "' "
-        if cin is not None:
-            query = query + " OR cin = " + str(cin) + " "
-            count_query = count_query + " OR cin = " + str(cin) + " "
-        if city is not None:
-            query = query + " OR city = '" + city + "' "
-            count_query = count_query + " OR city = '" + city + "' "
+    if corporate_body_name is None and cin is None and city is None:
+        search_cond = 1
+    else:
+        search_cond = 0
 
-        count_query = count_query + ") "
-        query = query + ") "
-
-    if registration_date_lte is not None or registration_date_gte is not None:
-        count_query = count_query + "AND ( 1 = 1 "
-        query = query + "AND ( 1 = 1 "
-        if registration_date_lte is not None:
-            query = query + "AND registration_date <= '" + registration_date_lte + "' "
-            count_query = count_query + "AND registration_date <= '" + registration_date_lte + "' "
-        if registration_date_gte is not None:
-            query = query + "AND registration_date >= '" + registration_date_gte + "' "
-            count_query = count_query + "AND registration_date >= '" + registration_date_gte + "' "
-        count_query = count_query + ") "
-        query = query + ") "
-
-    if order_by is not None and order_by in columns:
-        query = query + "ORDER BY " + order_by + " "
-    if order_type is not None and order_type in ["asc", "desc"]:
-        query = query + order_type + " "
-
-    query = query + "LIMIT " + str(per_page) + " "
-    query = query + "OFFSET " + str(page * per_page)
+    query = "EXECUTE get_list({}, {}, {}, {}, {}, {}, {}, {}, {}, {});".format(
+        "'" + str(1 if corporate_body_name is None else corporate_body_name) + "'",
+        str(1 if cin is None else cin),
+        "'" + str(1 if city is None else cin) + "'",
+        str(search_cond),
+        "'" + str('2000-1-1' if registration_date_lte is None else registration_date_lte) + "'",
+        1 if registration_date_lte is None else 0,
+        "'" + str('2000-1-1' if registration_date_gte is None else registration_date_gte) + "'",
+        1 if registration_date_gte is None else 0,
+        str(per_page),
+        str(page * per_page)
+    )
 
     cursor.execute(query)
     row = cursor.fetchall()
 
-    cursor.execute(count_query)
+    query = "EXECUTE get_count({}, {}, {}, {}, {}, {}, {}, {});".format(
+        "'" + str(1 if corporate_body_name is None else corporate_body_name) + "'",
+        str(1 if cin is None else cin),
+        "'" + str(1 if city is None else cin) + "'",
+        str(search_cond),
+        "'" + str('2000-1-1' if registration_date_lte is None else registration_date_lte) + "'",
+        1 if registration_date_lte is None else 0,
+        "'" + str('2000-1-1' if registration_date_gte is None else registration_date_gte) + "'",
+        1 if registration_date_gte is None else 0
+    )
+
+    cursor.execute(query)
     count = cursor.fetchone()
 
     metadata = {"page": page, "per_page": per_page, "pages": int(ceil(count[0]/per_page)), "total": count[0]}
