@@ -5,11 +5,11 @@ import re
 def is_string(pa_string):
     if pa_string is None:
         return None
-    prog = re.compile("^[0-9a-zA-Z_., :-]+$")
+    prog = re.compile("(.*[\"'#=].*)|(.*-{2}.*)")
     if prog.match(pa_string):
-        return pa_string
-    else:
         return None
+    else:
+        return pa_string
 
 
 # ak je string zo spravnymi znakmi vrati ho skonvertovany na cislo, inak vrati None
