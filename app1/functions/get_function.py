@@ -3,51 +3,24 @@ from math import ceil
 
 from django.http import JsonResponse
 from django.db import connection
-from app1.functions.sql_defense import *
-
-
-# vytvori z listu listov, list slovnikov (kvoli zadaniu)
-def make_dict_from_data(pa_data):
-    result = []
-    for x in pa_data:
-        result.append({
-            "id": x[0],
-            "br_court_name": x[1],
-            "kind_name": x[2],
-            "cin": x[3],
-            "registration_date": x[4],
-            "corporate_body_name": x[5],
-            "br_section": x[6],
-            "br_insertion": x[7],
-            "text": x[8],
-            "street": x[9],
-            "postal_code": x[10],
-            "city": x[11]
-        })
-    return result
+from app1.functions.validating_reformating import *
 
 
 # vytiahne z pola GET dany parameter, skontroluje ci je platny, ak sa tam nenachadza vrati je default hodnotu
-def extract_data_from_get(request, pa_key, def_value, pa_is_number=False):
+def extract_and_validate_data_from_get(request, pa_key, def_value):
     temp = request.GET.get(pa_key, def_value)
-    if pa_is_number:
-        if is_number(temp) is not None:
-            return int(is_number(temp))
-        else:
-            return def_value
+    if is_number(temp) is not None:
+        return int(is_number(temp))
     else:
-        if is_string(temp) is not None:
-            return is_string(temp)
-        else:
-            return def_value
+        return def_value
 
 
 # vrati json s datami, ktore odpovedaju parametrom z pola GET
 def get_list_from_get(request):
 
     params = {}
-    params["page"] = extract_data_from_get(request, "page", "1", pa_is_number=True)
-    params["per_page"] = extract_data_from_get(request, "per_page", "10", pa_is_number=True)
+    params["page"] = extract_and_validate_data_from_get(request, "page", 1)
+    params["per_page"] = extract_and_validate_data_from_get(request, "per_page", 10)
 
     params["order_by"] = request.GET.get("order_by", "id")
     columns = ["id", "br_court_name", "kind_name", "cin", "registration_date",

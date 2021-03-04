@@ -7,5 +7,7 @@ urlpatterns = [
     path('health', health.get_uptime),
     path('health/', health.get_uptime),
     path('ov/submissions', submissions.choose_method),
-    path('ov/submissions/', submissions.choose_method)
+    path('ov/submissions/', submissions.choose_method),
+    path('ov/submissions/<int:id>', submissions.choose_method, name="id"),
+
 ]
