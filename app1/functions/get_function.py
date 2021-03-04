@@ -15,7 +15,7 @@ def make_dict_from_data(pa_data):
             "br_court_name": x[1],
             "kind_name": x[2],
             "cin": x[3],
-            "registration_date": str(x[4]),
+            "registration_date": x[4],
             "corporate_body_name": x[5],
             "br_section": x[6],
             "br_insertion": x[7],
@@ -114,4 +114,4 @@ def get_list_from_get(request):
 
     metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),
                 "pages": int(ceil(count[0]/int(params["per_page"]))), "total": count[0]}
-    return JsonResponse({"items": make_dict_from_data(row), "metadata": metadata})
+    return JsonResponse({"items": make_dict_from_data(row), "metadata": metadata}, status=200)
