@@ -4,7 +4,7 @@ from app1.functions.delete_function import erase_data
 
 
 # rozhodne o aku metodu ide (GET, POST)
-def choose_method(request, id=1):
+def choose_method(request, id=-1):
     if request.method == "GET":
         return get_list_from_get(request)
     elif request.method == "POST":
