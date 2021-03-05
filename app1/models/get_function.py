@@ -69,7 +69,7 @@ def get_list_from_get(request):
     if "query" in params or "registration_date_lte" in params or "registration_date_gte" in params:
         where_clause += """ WHERE (1=1) """
     if "query" in params:
-        where_clause += """AND (corporate_body_name ILIKE %s) OR (cin::varchar(255) = %s) OR (city ILIKE %s) """
+        where_clause += """AND ((corporate_body_name ILIKE %s) OR (cin::varchar(255) = %s) OR (city ILIKE %s)) """
         query_params += (str(params["query"]), str(params["query"]), str(params["query"]),)
 
     if "registration_date_lte" in params:
