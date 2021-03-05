@@ -51,6 +51,9 @@ def post_new_data(request):
                 if post_json[x] is None:
                     errors.append({"field": x, "reasons": "invalid_range"})
 
+            elif type(post_json[x]) is int:
+                errors.append({"field": x, "reasons": "required"})
+
     # ak nie su chyby, pokracuj dalej
     if len(errors) != 0:
         return JsonResponse({"errors": errors}, status=422)
