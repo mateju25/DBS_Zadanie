@@ -83,14 +83,14 @@ def get_list_from_get(request):
     row = cursor.fetchall()
 
     # zisti metadata
-    query = """SELECT COUNT(id) FROM ov.or_podanie_issues WHERE ((1 = %s) OR (corporate_body_name ILIKE %s) OR (
-    cin::varchar(255) = %s) OR (city ILIKE %s)) AND ((1 = %s) OR (registration_date <= %s)) AND ((1 = %s) OR (
-    registration_date >= %s)) ; """
-    query_params = query_params[0:-2]
-    cursor.execute(query, query_params)
-    count = cursor.fetchone()
-
-    # vytvori metadata
-    metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),
-                "pages": int(ceil(count[0]/int(params["per_page"]))), "total": count[0]}
-    return JsonResponse({"items": make_dict_from_data(row), "metadata": metadata}, status=200)
+    # query = """SELECT COUNT(id) FROM ov.or_podanie_issues WHERE ((1 = %s) OR (corporate_body_name ILIKE %s) OR (
+    # cin::varchar(255) = %s) OR (city ILIKE %s)) AND ((1 = %s) OR (registration_date <= %s)) AND ((1 = %s) OR (
+    # registration_date >= %s)) ; """
+    # query_params = query_params[0:-2]
+    # cursor.execute(query, query_params)
+    # count = cursor.fetchone()
+    #
+    # # vytvori metadata
+    # metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),
+    #             "pages": int(ceil(count[0]/int(params["per_page"]))), "total": count[0]}
+    return JsonResponse({"items": make_dict_from_data(row), "metadata": "disabled"}, status=200)
