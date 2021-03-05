@@ -61,36 +61,42 @@ def get_list_from_get(request):
     cursor = connection.cursor()
 
     # vrati hlavne data
+    query_params = ()
     order_by_string = " ORDER BY " + params["order_by"] + " " + params["order_type"] + """ LIMIT %s OFFSET %s ;"""
     query = """SELECT id, br_court_name, kind_name, cin, registration_date, corporate_body_name,  br_section,
-        br_insertion, text, street, postal_code, city FROM ov.or_podanie_issues WHERE ((1 = %s) OR (corporate_body_name
-        ILIKE %s) OR (cin::varchar(255) = %s) OR (city ILIKE %s)) AND ((1 = %s) OR (registration_date <= %s)) AND ((1 =
-        %s) OR (registration_date >= %s)) """
-    query += order_by_string
-    # nastavi parametre queriny
-    query_params = (0 if "query" in params else 1,
-                    str(1 if "query" not in params else params["query"]),
-                    str(1 if "query" not in params else params["query"]),
-                    str(1 if "query" not in params else params["query"]),
-                    0 if "registration_date_lte" in params else 1,
-                    str('2000-1-1' if "registration_date_lte" not in params else params["registration_date_lte"]),
-                    0 if "registration_date_gte" in params else 1,
-                    str('2000-1-1' if "registration_date_gte" not in params else params["registration_date_gte"]),
-                    int(params["per_page"]),
-                    ((int(params["page"]) - 1) * int(params["per_page"]))
-                    )
+        br_insertion, text, street, postal_code, city FROM ov.or_podanie_issues"""
+    where_clause = """"""
+    if "query" in params or "registration_date_lte" in params or "registration_date_gte" in params:
+        where_clause += """ WHERE (1=1) """
+    if "query" in params:
+        where_clause += """AND (corporate_body_name ILIKE %s) OR (cin::varchar(255) = %s) OR (city ILIKE %s) """
+        query_params += (str(params["query"]), str(params["query"]), str(params["query"]),)
+
+    if "registration_date_lte" in params:
+        where_clause += """AND (registration_date <= %s) """
+        query_params += (str(params["registration_date_lte"]),)
+
+    if "registration_date_gte" in params:
+        where_clause += """AND (registration_date >= %s) """
+        query_params += (str(params["registration_date_gte"]),)
+
+    query += where_clause + order_by_string
+    query_params += (int(params["per_page"]), ((int(params["page"]) - 1) * int(params["per_page"])),)
     cursor.execute(query, query_params)
+    print(cursor.query)
     row = cursor.fetchall()
 
-    # zisti metadata
-    # query = """SELECT COUNT(id) FROM ov.or_podanie_issues WHERE ((1 = %s) OR (corporate_body_name ILIKE %s) OR (
-    # cin::varchar(255) = %s) OR (city ILIKE %s)) AND ((1 = %s) OR (registration_date <= %s)) AND ((1 = %s) OR (
-    # registration_date >= %s)) ; """
-    # query_params = query_params[0:-2]
-    # cursor.execute(query, query_params)
-    # count = cursor.fetchone()
-    #
-    # # vytvori metadata
-    # metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),
-    #             "pages": int(ceil(count[0]/int(params["per_page"]))), "total": count[0]}
-    return JsonResponse({"items": make_dict_from_data(row), "metadata": "disabled"}, status=200)
+    #zisti metadata
+    query = "SELECT COUNT(id) FROM ov.or_podanie_issues " + where_clause
+    query_params = query_params[0:-2]
+    if len(query_params) != 0:
+        cursor.execute(query, query_params)
+    else:
+        cursor.execute(query)
+    print(cursor.query)
+    count = cursor.fetchone()
+
+    # vytvori metadata
+    metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),
+                "pages": int(ceil(count[0]/int(params["per_page"]))), "total": count[0]}
+    return JsonResponse({"items": make_dict_from_data(row), "metadata": metadata}, status=200)
