@@ -3,7 +3,7 @@ from math import ceil
 
 from django.http import JsonResponse
 from django.db import connection
-from app1.functions.validating_reformating import *
+from app1.models.validating_reformating import *
 
 
 # vytiahne z pola GET dany parameter, skontroluje ci je platny, ak sa tam nenachadza vrati je default hodnotu
@@ -19,8 +19,8 @@ def extract_and_validate_data_from_get(request, pa_key, def_value):
 def get_list_from_get(request):
     # v dictionary params sa budu nachadzat dane argumenty na filtrovanie
     params = {}
-    params["page"] = extract_and_validate_data_from_get(request, "page", 1)
-    params["per_page"] = extract_and_validate_data_from_get(request, "per_page", 10)
+    params["page"] = extract_and_validate_data_from_get(request, "page", "1")
+    params["per_page"] = extract_and_validate_data_from_get(request, "per_page", "10")
 
     # overi, ci v order_by parametri je len to co tam ma byt
     params["order_by"] = request.GET.get("order_by", "id")

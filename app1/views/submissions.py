@@ -1,6 +1,6 @@
-from app1.functions.get_function import get_list_from_get
-from app1.functions.post_function import post_new_data
-from app1.functions.delete_function import erase_data
+from app1.models.get_function import get_list_from_get
+from app1.models.post_function import post_new_data
+from app1.models.delete_function import erase_data
 
 
 # rozhodne o aku metodu ide (GET, POST)
