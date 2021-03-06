@@ -86,17 +86,30 @@ def get_list_from_get(request):
     print(cursor.query)
     row = cursor.fetchall()
 
-    #zisti metadata
-    query = "SELECT COUNT(id) FROM ov.or_podanie_issues " + where_clause
+    #zisti najvyssie id ake je pre dane podmienky
+    query = "SELECT id FROM ov.or_podanie_issues " + where_clause + """ ORDER BY id desc LIMIT 1"""
     query_params = query_params[0:-2]
     if len(query_params) != 0:
         cursor.execute(query, query_params)
     else:
         cursor.execute(query)
-    print(cursor.query)
-    count = cursor.fetchone()
+    count = (cursor.fetchone())[0]
+    print(count)
+
+    count_real = 0
+    #zisti metadata
+    for i in range(0, count+10, int(count/10)):
+        if len(where_clause) == 0:
+            id_clause = """WHERE (id >= %s AND id <= %s)"""
+        else:
+            id_clause = """AND (id >= %s AND id <= %s)"""
+        query = """SELECT COUNT(id) FROM ov.or_podanie_issues """ + where_clause + id_clause
+        query_params = query_params[0:-2] + (i, i+int(count/10), )
+        cursor.execute(query, query_params)
+        print(cursor.query)
+        count_real += (cursor.fetchone())[0]
 
     # vytvori metadata
     metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),
-                "pages": int(ceil(count[0]/int(params["per_page"]))), "total": count[0]}
+                "pages": int(ceil(count_real/int(params["per_page"]))), "total": count_real}
     return JsonResponse({"items": make_dict_from_data(row), "metadata": metadata}, status=200)
