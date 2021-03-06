@@ -78,7 +78,7 @@ def post_new_data(request):
 
     # vytvor novy zaznam v raw_issues
     query = """INSERT INTO ov.raw_issues (bulletin_issue_id, file_name, content, created_at, updated_at) VALUES 
-    (%s, '', null, now(), now()); """
+    (%s, '-', '-', now(), now()); """
     cursor.execute(query, (bullet_id,))
 
     # ziskaj id prave vytvoreneho raw_isssues
@@ -92,7 +92,7 @@ def post_new_data(request):
     (raw_issue_id, bulletin_issue_id, br_mark, br_court_code, br_court_name, kind_code, kind_name, cin, 
     registration_date, corporate_body_name, br_section, br_insertion, text, created_at, updated_at, 
     address_line, street, postal_code, city ) 
-    VALUES (%s, %s, '', '', %s, '', %s, %s, %s, %s, %s, %s, %s, now(), now(), %s, %s, %s, %s); """
+    VALUES (%s, %s, '-', '-', %s, '-', %s, %s, %s, %s, %s, %s, %s, now(), now(), %s, %s, %s, %s); """
     cursor.execute(query, (raw_id, bullet_id, post_json["br_court_name"], post_json["kind_name"], post_json["cin"],
                            post_json["registration_date"], post_json["corporate_body_name"], post_json["br_section"],
                            post_json["br_insertion"], post_json["text"], adress_line, post_json["street"],
