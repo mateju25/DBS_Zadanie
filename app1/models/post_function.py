@@ -17,7 +17,7 @@ def extract_and_validate_data_from_post(pa_json, pa_key, pa_is_number=False):
     else:
         try:
             if temp is not None:
-                datetime.strptime(temp, '%Y-%m-%d %H:%M:%S.%f')
+                datetime.strptime(temp, '%Y-%m-%d')
                 if temp >= datetime.now().strftime('%Y'):
                     return temp
                 else:
@@ -29,7 +29,11 @@ def extract_and_validate_data_from_post(pa_json, pa_key, pa_is_number=False):
 # vlozi novy riadok do tabulky or_podanie_issues
 def post_new_data(request):
     errors = []
-    post_json = json.loads(request.body)
+    try:
+        post_json = json.loads(request.body)
+    except Exception:
+        errors.append({"field": "json", "reasons": ["not_json"]})
+        return JsonResponse({"errors": errors}, status=422)
 
     required = ["br_court_name", "kind_name", "cin", "registration_date", "corporate_body_name",
                 "br_section", "br_insertion", "text", "street", "postal_code", "city"]
@@ -37,22 +41,22 @@ def post_new_data(request):
     # prejde json, ci su pritomne vsetky required polia
     for x in required:
         if x not in post_json:
-            errors.append({"field": x, "reasons": "required"})
+            errors.append({"field": x, "reasons": ["required"]})
         else:
             # ak je to parameter cin, overi ci je to cislo
             if x == 'cin':
                 post_json[x] = extract_and_validate_data_from_post(post_json, x, pa_is_number=True)
                 if post_json[x] is None:
-                    errors.append({"field": x, "reasons": "not_number"})
+                    errors.append({"field": x, "reasons": ["not_number"]})
 
             # ak je to registration_date, overi ci datum v spravnom formate
             elif x == 'registration_date':
                 post_json[x] = extract_and_validate_data_from_post(post_json, x)
                 if post_json[x] is None:
-                    errors.append({"field": x, "reasons": "invalid_range"})
+                    errors.append({"field": x, "reasons": ["invalid_range"]})
 
             elif type(post_json[x]) is int:
-                errors.append({"field": x, "reasons": "required"})
+                errors.append({"field": x, "reasons": ["not_string"]})
 
     # ak nie su chyby, pokracuj dalej
     if len(errors) != 0:
