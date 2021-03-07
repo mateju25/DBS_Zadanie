@@ -37,4 +37,7 @@ def erase_data(row_id):
         query = """DELETE FROM ov.raw_issues WHERE id = %s;"""
         cursor.execute(query, (delete_data[1],))
 
+    query = """DELETE FROM ov.or_podanie_issues WHERE id = %s;"""
+    cursor.execute(query, (row_id,))
+
     return HttpResponse(status=204)
