@@ -77,22 +77,22 @@ WSGI_APPLICATION = 'azure.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'main_database',
-    #     'USER': 'xdelincak@fiit-dbs-xdelincak-db',
-    #     'PASSWORD': 'akacn1l3D*25z-ptfqu35a',
-    #     'HOST': 'fiit-dbs-xdelincak-db.postgres.database.azure.com',
-    #     'PORT': '5432',
-    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'azure_local',
-        'USER': 'postgres',
-        'PASSWORD': 'Korespondent2000',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'NAME': 'main_database',
+        'USER': 'xdelincak@fiit-dbs-xdelincak-db',
+        'PASSWORD': 'akacn1l3D*25z-ptfqu35a',
+        'HOST': 'fiit-dbs-xdelincak-db.postgres.database.azure.com',
+        'PORT': '5432',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'azure_local',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'Korespondent2000',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432'
+    # }
 
 
 }
