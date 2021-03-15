@@ -11,6 +11,7 @@ def erase_data(row_id):
     cursor.execute(query, (row_id,))
     delete_data = cursor.fetchone()
     if delete_data is None:
+        cursor.close()
         return JsonResponse({"error": {"message": "Záznam neexistuje"}}, status=404)
 
     # zisti pocet riadkov v tabulke or_podanie_issues, ktore maju dany bulletin
@@ -39,5 +40,5 @@ def erase_data(row_id):
 
     query = """DELETE FROM ov.or_podanie_issues WHERE id = %s;"""
     cursor.execute(query, (row_id,))
-
+    cursor.close()
     return HttpResponse(status=204)

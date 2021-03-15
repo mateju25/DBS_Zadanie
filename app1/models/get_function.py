@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from math import ceil
 
 from django.http import JsonResponse
@@ -20,6 +20,8 @@ def get_list_from_get(request):
     # v dictionary params sa budu nachadzat dane argumenty na filtrovanie
     params = {}
     params["page"] = extract_and_validate_data_from_get(request, "page", "1")
+    if params["page"] == 0:
+        params["page"] = 1
     params["per_page"] = extract_and_validate_data_from_get(request, "per_page", "10")
 
     # overi, ci v order_by parametri je len to co tam ma byt
@@ -38,33 +40,26 @@ def get_list_from_get(request):
     # do vyhladavacieho stringu doplni %query%, kvoli matchovaniu pri vyhladavani
     query = request.GET.get("query", None)
     if query is not None:
-        params["query"] = "%" + query + "%"
+        params["query"] = "%" + query.lower() + "%"
 
     # zvaliduje datum (parameter p_registration_date_lte)
     p_registration_date_lte = request.GET.get("registration_date_lte", None)
-    try:
-        if p_registration_date_lte is not None:
-            datetime.datetime.strptime(p_registration_date_lte, '%Y-%m-%d %H:%M:%S.%f')
-            params["registration_date_lte"] = p_registration_date_lte
-    except ValueError:
-        pass
+    p_registration_date_lte = is_date(p_registration_date_lte)
+    if p_registration_date_lte is not None:
+        params["registration_date_lte"] = p_registration_date_lte
 
     # zvaliduje datum (parameter registration_date_gte)
     p_registration_date_gte = request.GET.get("registration_date_gte", None)
-    try:
-        if p_registration_date_gte is not None:
-            datetime.datetime.strptime(p_registration_date_gte, '%Y-%m-%d %H:%M:%S.%f')
-            params["registration_date_gte"] = p_registration_date_gte
-    except ValueError:
-        pass
+    p_registration_date_gte = is_date(p_registration_date_gte)
+    if p_registration_date_gte is not None:
+        params["registration_date_gte"] = p_registration_date_gte
+
 
     cursor = connection.cursor()
 
-    # vrati hlavne data
+    # vysklada podmienky
     query_params = ()
     order_by_string = " ORDER BY " + params["order_by"] + " " + params["order_type"] + """ LIMIT %s OFFSET %s ;"""
-    query = """SELECT id, br_court_name, kind_name, cin, registration_date, corporate_body_name,  br_section,
-        br_insertion, text, street, postal_code, city FROM ov.or_podanie_issues"""
     where_clause = """"""
     if "query" in params or "registration_date_lte" in params or "registration_date_gte" in params:
         where_clause += """ WHERE (1=1) """
@@ -80,21 +75,26 @@ def get_list_from_get(request):
         where_clause += """AND (registration_date >= %s) """
         query_params += (str(params["registration_date_gte"]),)
 
-    query += where_clause + order_by_string
-    query_params += (int(params["per_page"]), ((int(params["page"]) - 1) * int(params["per_page"])),)
-    cursor.execute(query, query_params)
-    print(cursor.query)
-    row = cursor.fetchall()
-
-    #zisti metadata
+    # zisti metadata
     query = "SELECT COUNT(id) FROM ov.or_podanie_issues " + where_clause
-    query_params = query_params[0:-2]
     if len(query_params) != 0:
         cursor.execute(query, query_params)
     else:
         cursor.execute(query)
     print(cursor.query)
     count = cursor.fetchone()
+
+    # zisti hlavny data
+    row = []
+    if not (int(ceil(count[0]/int(params["per_page"]))) < (int(params["page"]))):
+        query = """SELECT id, br_court_name, kind_name, cin, registration_date, corporate_body_name,  br_section,  br_insertion, text, street, postal_code, city FROM ov.or_podanie_issues"""
+        query += where_clause + order_by_string
+        query_params += (int(params["per_page"]), ((int(params["page"]) - 1) * int(params["per_page"])),)
+        cursor.execute(query, query_params)
+        print(cursor.query)
+        row = cursor.fetchall()
+
+    cursor.close()
 
     # vytvori metadata
     metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),

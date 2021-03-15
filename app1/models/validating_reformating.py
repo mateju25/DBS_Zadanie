@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 
@@ -9,6 +10,16 @@ def is_number(pa_string):
     if prog.match(pa_string):
         return int(pa_string)
     else:
+        return None
+
+
+def is_date(pa_string):
+    if pa_string is None:
+        return None
+    try:
+        temp = datetime.fromisoformat(pa_string)
+        return datetime.strftime(temp, '%Y-%m-%d')
+    except ValueError:
         return None
 
 
