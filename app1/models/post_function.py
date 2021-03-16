@@ -27,14 +27,15 @@ def extract_and_validate_data_from_post(pa_json, pa_key, pa_is_number=False):
 # vlozi novy riadok do tabulky or_podanie_issues
 def post_new_data(request):
     errors = []
+    required = ["br_court_name", "kind_name", "cin", "registration_date", "corporate_body_name",
+                "br_section", "br_insertion", "text", "street", "postal_code", "city"]
+
     try:
         post_json = json.loads(request.body)
     except Exception:
-        errors.append({"field": "json", "reasons": ["not_json"]})
+        for x in required:
+            errors.append({"field": x, "reasons": ["required"]})
         return JsonResponse({"errors": errors}, status=422)
-
-    required = ["br_court_name", "kind_name", "cin", "registration_date", "corporate_body_name",
-                "br_section", "br_insertion", "text", "street", "postal_code", "city"]
 
     # prejde json, ci su pritomne vsetky required polia
     for x in required:
@@ -53,8 +54,8 @@ def post_new_data(request):
                 if post_json[x] is None:
                     errors.append({"field": x, "reasons": ["invalid_range"]})
 
-            else:
-                post_json[x] = str(post_json[x])
+            elif type(post_json[x]) is int:
+                errors.append({"field": x, "reasons": ["required"]})
 
     # ak nie su chyby, pokracuj dalej
     if len(errors) != 0:
