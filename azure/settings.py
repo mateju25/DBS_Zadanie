@@ -92,11 +92,11 @@ if os.environ.get('DJANGO_DEVELOPMENT'):
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'main_database',
-            'USER': 'xdelincak@fiit-dbs-xdelincak-db',
-            'PASSWORD': 'akacn1l3D*25z-ptfqu35a',
-            'HOST': 'fiit-dbs-xdelincak-db.postgres.database.azure.com',
+            'ENGINE': os.environ['ENGINE'],
+            'NAME': os.environ['DBNAME'],
+            'USER': os.environ['DBUSER'],
+            'PASSWORD': os.environ['DBPASS'],
+            'HOST': os.environ['DBHOST'],
             'PORT': '5432',
         }
     }
