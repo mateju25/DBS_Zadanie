@@ -1,18 +1,29 @@
-from datetime import datetime
 from math import ceil
 
 from django.http import JsonResponse
 from django.db import connection
-from app1.models.validating_reformating import *
+from v1.modelsZadanie2.validating_reformating import *
 
 
-# vytiahne z pola GET dany parameter, skontroluje ci je platny, ak sa tam nenachadza vrati je default hodnotu
-def extract_and_validate_data_from_get(request, pa_key, def_value):
-    temp = request.GET.get(pa_key, def_value)
-    if is_number(temp) is not None:
-        return int(is_number(temp))
-    else:
-        return def_value
+# vytvori z listu listov, list slovnikov (kvoli zadaniu)
+def make_dict_from_data(pa_data):
+    result = []
+    for x in pa_data:
+        result.append({
+            "id": x[0],
+            "br_court_name": x[1],
+            "kind_name": x[2],
+            "cin": x[3],
+            "registration_date": x[4],
+            "corporate_body_name": x[5],
+            "br_section": x[6],
+            "br_insertion": x[7],
+            "text": x[8],
+            "street": x[9],
+            "postal_code": x[10],
+            "city": x[11]
+        })
+    return result
 
 
 # vrati json s datami, ktore odpovedaju parametrom z pola GET
@@ -76,7 +87,7 @@ def get_list_from_get(request):
         query_params += (str(params["registration_date_gte"]),)
 
     # zisti metadata
-    query = "SELECT COUNT(id) FROM ov.or_podanie_issues " + where_clause
+    query = """SELECT COUNT(id) FROM ov.or_podanie_issues """ + where_clause
     if len(query_params) != 0:
         cursor.execute(query, query_params)
     else:

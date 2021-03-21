@@ -1,7 +1,7 @@
 import datetime
 from django.db import connection
 from django.http import JsonResponse
-from app1.models.validating_reformating import *
+from v1.modelsZadanie2.validating_reformating import *
 
 import json
 

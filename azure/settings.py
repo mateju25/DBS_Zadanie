@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ["fiit-dbs-xdelincak-app.azurewebsites.net", "127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
-    'app1',
+    'v1',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -137,4 +137,4 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/app1/static/'
+STATIC_URL = '/v1/static/'
