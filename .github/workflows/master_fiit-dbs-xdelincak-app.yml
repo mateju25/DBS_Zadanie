@@ -40,8 +40,8 @@ jobs:
 
     - name: "Run django migrations"
       env:
-        DBNAME: ${{ dbs2021 }}
-        DBPASS: ${{ akacn1l3D*25z-ptfqu35a }}
-        DBUSER: ${{ postgres }}
-        DBHOST: ${{ database-1.cuegcsbq5dzm.us-east-1.rds.amazonaws.com }}
+        DBNAME: ${{ 'dbs2021' }}
+        DBPASS: ${{ 'akacn1l3D*25z-ptfqu35a' }}
+        DBUSER: ${{ 'postgres' }}
+        DBHOST: ${{ 'database-1.cuegcsbq5dzm.us-east-1.rds.amazonaws.com' }}
       run: python manage.py migrate
