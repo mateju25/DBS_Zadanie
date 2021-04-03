@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -77,7 +76,7 @@ class Migration(migrations.Migration):
                 WHERE cin IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ov.companies comp WHERE comp.cin = ov.konkurz_restrukturalizacia_actors.cin)
         ) X 
         WHERE row_n = 1;
-        
+
         --dopln stlpce do ostatnych tabuliek a napln ich hodnotami
         ALTER TABLE ov.or_podanie_issues
         ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
