@@ -12,8 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL("""
-        DROP TABLE IF EXISTS ov.companies;
-        CREATE TABLE ov.companies (
+        CREATE TABLE IF NOT EXISTS ov.companies (
             cin         bigint PRIMARY KEY,
             name        character varying(255),
             br_section  character varying(255),
@@ -78,16 +77,18 @@ class Migration(migrations.Migration):
                 WHERE cin IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ov.companies comp WHERE comp.cin = ov.konkurz_restrukturalizacia_actors.cin)
         ) X 
         WHERE row_n = 1;
+        
+        --dopln stlpce do ostatnych tabuliek a napln ich hodnotami
         ALTER TABLE ov.or_podanie_issues
-        ADD COLUMN company_id bigint REFERENCES ov.companies(cin); 
+        ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
         ALTER TABLE ov.likvidator_issues
-        ADD COLUMN company_id bigint REFERENCES ov.companies(cin); 
+        ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
         ALTER TABLE ov.konkurz_vyrovnanie_issues
-        ADD COLUMN company_id bigint REFERENCES ov.companies(cin); 
+        ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
         ALTER TABLE ov.znizenie_imania_issues
-        ADD COLUMN company_id bigint REFERENCES ov.companies(cin); 
+        ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
         ALTER TABLE ov.konkurz_restrukturalizacia_actors
-        ADD COLUMN company_id bigint REFERENCES ov.companies(cin); 
+        ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
         UPDATE ov.or_podanie_issues
         SET company_id = cin WHERE cin IS NOT null;
         UPDATE ov.likvidator_issues
