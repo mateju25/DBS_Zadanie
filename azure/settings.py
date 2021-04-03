@@ -92,7 +92,7 @@ if os.environ.get('DJANGO_DEVELOPMENT'):
 else:
     DATABASES = {
         'default': {
-            'ENGINE': os.environ['ENGINE'],
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.environ['DBNAME'],
             'USER': os.environ['DBUSER'],
             'PASSWORD': os.environ['DBPASS'],
