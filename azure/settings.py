@@ -75,7 +75,18 @@ WSGI_APPLICATION = 'azure.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if os.environ.get('DJANGO_DEVELOPMENT'):
+if os.environ.get('DJANGO_DEVELOPMENT') is None or os.environ.get('DJANGO_DEVELOPMENT') == 'False':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['DBNAME'],
+            'USER': os.environ['DBUSER'],
+            'PASSWORD': os.environ['DBPASS'],
+            'HOST': os.environ['DBHOST'],
+            'PORT': '5432',
+        }
+    }
+else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -89,17 +100,7 @@ if os.environ.get('DJANGO_DEVELOPMENT'):
             }
         }
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['DBNAME'],
-            'USER': os.environ['DBUSER'],
-            'PASSWORD': os.environ['DBPASS'],
-            'HOST': os.environ['DBHOST'],
-            'PORT': '5432',
-        }
-    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

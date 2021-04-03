@@ -32,16 +32,3 @@ jobs:
         app-name: 'fiit-dbs-xdelincak-app'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_08c22fb345214162b21b945aea12150f }}
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: "Run django migrations"
-      env:
-        DBNAME: ${{ 'dbs2021' }}
-        DBPASS: ${{ 'akacn1l3D*25z-ptfqu35a' }}
-        DBUSER: ${{ 'postgres' }}
-        DBHOST: ${{ 'database-1.cuegcsbq5dzm.us-east-1.rds.amazonaws.com' }}
-      run: python manage.py migrate
