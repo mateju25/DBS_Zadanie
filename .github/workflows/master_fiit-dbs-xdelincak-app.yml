@@ -40,9 +40,10 @@ jobs:
 
     - name: "Run django migrations"
       env:
-	"ENGINE": ${{django.db.backends.postgresql_psycopg2}}
-	NAME: ${{dbs2021}}
-        PASSWORD: ${{akacn1l3D*25z-ptfqu35a}}
-        USER: ${{postgres}}
-        HOST: ${{database-1.cuegcsbq5dzm.us-east-1.rds.amazonaws.com}}
+        DBNAME: ${{ secrets.DBNAME }}
+        DBPASS: ${{ secrets.DBPASS }}
+        DBUSER: ${{ secrets.DBUSER }}
+        DEBUG: ${{ secrets.DEBUG }}
+        DBSCHEMA: ${{ secrets.DBSCHEMA }}
+        DBHOST: ${{ secrets.DBHOST }}
       run: python manage.py migrate
