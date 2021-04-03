@@ -92,11 +92,11 @@ if os.environ.get('DJANGO_DEVELOPMENT'):
 else:
     DATABASES = {
         'default': {
-            'ENGINE': os.environ['ENGINE'],
-            'NAME': os.environ['DBNAME'],
-            'USER': os.environ['DBUSER'],
-            'PASSWORD': os.environ['DBPASS'],
-            'HOST': os.environ['DBHOST'],
+            'ENGINE': "django.db.backends.postgresql_psycopg2",#os.environ['ENGINE'],
+            'NAME': "dbs2021", #os.environ['DBNAME'],
+            'USER': "postgres",#os.environ['DBUSER'],
+            'PASSWORD': "akacn1l3D*25z-ptfqu35a",#os.environ['DBPASS'],
+            'HOST': "database-1.cuegcsbq5dzm.us-east-1.rds.amazonaws.com",#os.environ['DBHOST'],
             'PORT': '5432',
         }
     }
