@@ -39,9 +39,10 @@ jobs:
         pip install -r requirements.txt
 
     - name: "Run django migrations"
-	ENGINE: django.db.backends.postgresql_psycopg2
-	NAME: dbs2021
-        PASSWORD: akacn1l3D*25z-ptfqu35a
-        USER: postgres
-        HOST: database-1.cuegcsbq5dzm.us-east-1.rds.amazonaws.com
+      env:
+	ENGINE: ${{django.db.backends.postgresql_psycopg2}}
+	NAME: ${{dbs2021}}
+        PASSWORD: ${{akacn1l3D*25z-ptfqu35a}}
+        USER: ${{postgres}}
+        HOST: ${{database-1.cuegcsbq5dzm.us-east-1.rds.amazonaws.com}}
       run: python manage.py migrate
