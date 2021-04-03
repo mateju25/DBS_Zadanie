@@ -40,7 +40,7 @@ jobs:
 
     - name: "Run django migrations"
       env:
-	ENGINE: ${{django.db.backends.postgresql_psycopg2}}
+	"ENGINE": ${{django.db.backends.postgresql_psycopg2}}
 	NAME: ${{dbs2021}}
         PASSWORD: ${{akacn1l3D*25z-ptfqu35a}}
         USER: ${{postgres}}
