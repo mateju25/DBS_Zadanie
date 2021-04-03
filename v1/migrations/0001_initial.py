@@ -19,7 +19,8 @@ class Migration(migrations.Migration):
             last_update timestamp without time zone,
             created_at  timestamp without time zone,
             updated_at timestamp without time zone
-        );
+        );"""),
+        migrations.RunSQL("""
         --podanie
         INSERT INTO ov.companies(cin, name, br_section, address_line, last_update, created_at, updated_at)
         SELECT cin, corporate_body_name, br_section, address_line, updated_at, now(), now()
@@ -30,7 +31,8 @@ class Migration(migrations.Migration):
              FROM ov.or_podanie_issues 
                 WHERE cin IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ov.companies comp WHERE comp.cin = ov.or_podanie_issues.cin)
         ) X 
-        WHERE row_n = 1;
+        WHERE row_n = 1;"""),
+        migrations.RunSQL("""
         --likvidator
         INSERT INTO ov.companies(cin, name, br_section, address_line, last_update, created_at, updated_at)
         SELECT cin, corporate_body_name, br_section, adress_line, updated_at, now(), now()
@@ -41,7 +43,8 @@ class Migration(migrations.Migration):
              FROM ov.likvidator_issues 
                 WHERE cin IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ov.companies comp WHERE comp.cin = ov.likvidator_issues.cin)
         ) X 
-        WHERE row_n = 1;
+        WHERE row_n = 1;"""),
+        migrations.RunSQL("""
         --konkurz_vyrovnanie_issues
         INSERT INTO ov.companies(cin, name, br_section, address_line, last_update, created_at, updated_at)
         SELECT cin, corporate_body_name, null, adress_line, updated_at, now(), now()
@@ -52,7 +55,8 @@ class Migration(migrations.Migration):
              FROM ov.konkurz_vyrovnanie_issues 
                 WHERE cin IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ov.companies comp WHERE comp.cin = ov.konkurz_vyrovnanie_issues.cin)
         ) X 
-        WHERE row_n = 1;
+        WHERE row_n = 1;"""),
+        migrations.RunSQL("""
         --znizenie_imania_issues
         INSERT INTO ov.companies(cin, name, br_section, address_line, last_update, created_at, updated_at)
         SELECT cin, corporate_body_name, br_section, adress_line, updated_at, now(), now()
@@ -63,8 +67,8 @@ class Migration(migrations.Migration):
              FROM ov.znizenie_imania_issues 
                 WHERE cin IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ov.companies comp WHERE comp.cin = ov.znizenie_imania_issues.cin)
         ) X 
-        WHERE row_n = 1;
-
+        WHERE row_n = 1;"""),
+        migrations.RunSQL("""
         --konkurz_restrukturalizacia_actors
         INSERT INTO ov.companies(cin, name, br_section, address_line, last_update, created_at, updated_at)
         SELECT cin, corporate_body_name, null, adress_line, updated_at, now(), now()
@@ -75,8 +79,8 @@ class Migration(migrations.Migration):
              FROM ov.konkurz_restrukturalizacia_actors 
                 WHERE cin IS NOT NULL AND NOT EXISTS (SELECT 1 FROM ov.companies comp WHERE comp.cin = ov.konkurz_restrukturalizacia_actors.cin)
         ) X 
-        WHERE row_n = 1;
-
+        WHERE row_n = 1;"""),
+        migrations.RunSQL("""
         --dopln stlpce do ostatnych tabuliek a napln ich hodnotami
         ALTER TABLE ov.or_podanie_issues
         ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
@@ -87,16 +91,20 @@ class Migration(migrations.Migration):
         ALTER TABLE ov.znizenie_imania_issues
         ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
         ALTER TABLE ov.konkurz_restrukturalizacia_actors
-        ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); 
+        ADD COLUMN IF NOT EXISTS company_id bigint REFERENCES ov.companies(cin); """),
+        migrations.RunSQL("""
         UPDATE ov.or_podanie_issues
-        SET company_id = cin WHERE cin IS NOT null;
+        SET company_id = cin WHERE cin IS NOT null;"""),
+        migrations.RunSQL("""
         UPDATE ov.likvidator_issues
-        SET company_id = cin WHERE cin IS NOT null;
+        SET company_id = cin WHERE cin IS NOT null;"""),
+        migrations.RunSQL("""
         UPDATE ov.konkurz_vyrovnanie_issues
-        SET company_id = cin WHERE cin IS NOT null;
+        SET company_id = cin WHERE cin IS NOT null;"""),
+        migrations.RunSQL("""
         UPDATE ov.znizenie_imania_issues
-        SET company_id = cin WHERE cin IS NOT null;
+        SET company_id = cin WHERE cin IS NOT null;"""),
+        migrations.RunSQL("""
         UPDATE ov.konkurz_restrukturalizacia_actors
-        SET company_id = cin WHERE cin IS NOT null;
-""")
+        SET company_id = cin WHERE cin IS NOT null;""")
     ]
