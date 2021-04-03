@@ -32,3 +32,6 @@ jobs:
         app-name: 'fiit-dbs-xdelincak-app'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_08c22fb345214162b21b945aea12150f }}
+
+    - name: "Run django migrations"
+      run: python manage.py migrate
