@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ["fiit-dbs-xdelincak-app.azurewebsites.net", "127.0.0.1"]
 
 INSTALLED_APPS = [
     'v1',
+    'v2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -84,6 +85,9 @@ if os.environ.get('DJANGO_DEVELOPMENT') is None or os.environ.get('DJANGO_DEVELO
             'PASSWORD': os.environ['DBPASS'],
             'HOST': os.environ['DBHOST'],
             'PORT': '5432',
+            'OPTIONS': {
+                'options': '-c search_path=ov',
+            }
         }
     }
 else:
@@ -96,7 +100,7 @@ else:
             'HOST': 'localhost',
             'PORT': '5432',
             'OPTIONS': {
-                'options': '-c search_path=public',
+                'options': '-c search_path=ov',
             }
         }
     }

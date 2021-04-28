@@ -30,10 +30,10 @@ def make_dict_from_data(pa_data):
 def get_list_from_get(request):
     # v dictionary params sa budu nachadzat dane argumenty na filtrovanie
     params = {}
-    params["page"] = extract_and_validate_data_from_get(request, "page", "1")
+    params["page"] = validate_data_from_get_int(request, "page", "1")
     if params["page"] == 0:
         params["page"] = 1
-    params["per_page"] = extract_and_validate_data_from_get(request, "per_page", "10")
+    params["per_page"] = validate_data_from_get_int(request, "per_page", "10")
 
     # overi, ci v order_by parametri je len to co tam ma byt
     params["order_by"] = request.GET.get("order_by", "id")

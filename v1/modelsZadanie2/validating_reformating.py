@@ -24,7 +24,7 @@ def is_date(pa_string):
 
 
 # vytiahne z pola GET dany parameter, skontroluje ci je platny, ak sa tam nenachadza vrati je default hodnotu
-def extract_and_validate_data_from_get(request, pa_key, def_value):
+def validate_data_from_get_int(request, pa_key, def_value):
     temp = request.GET.get(pa_key, def_value)
     if is_number(temp) is not None:
         return int(is_number(temp))
