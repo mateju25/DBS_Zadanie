@@ -1,5 +1,4 @@
 import datetime
-from django.db import connection
 from django.db.models import F
 from django.http import JsonResponse
 from django.utils import timezone
@@ -8,12 +7,10 @@ from v1.modelsZadanie2.validating_reformating import *
 
 import json
 
-
-# overi ci cislo je int, alebo ci je datum v spravnom formate, ak nie vrati None
 from v2.models import BulletinIssues, RawIssues, OrPodanieIssues
 
 
-def extract_and_validate_data_from_post(pa_json, pa_key, pa_is_number=False):
+def extract_and_validate_data_from_body(pa_json, pa_key, pa_is_number=False):
     temp = pa_json[pa_key]
     if pa_is_number:
         if type(temp) is int:
@@ -50,13 +47,13 @@ def post_new_data(request):
         else:
             # ak je to parameter cin, overi ci je to cislo
             if x == 'cin':
-                post_json[x] = extract_and_validate_data_from_post(post_json, x, pa_is_number=True)
+                post_json[x] = extract_and_validate_data_from_body(post_json, x, pa_is_number=True)
                 if post_json[x] is None:
                     errors.append({"field": x, "reasons": ["not_number"]})
 
             # ak je to registration_date, overi ci datum v spravnom formate
             elif x == 'registration_date':
-                post_json[x] = extract_and_validate_data_from_post(post_json, x)
+                post_json[x] = extract_and_validate_data_from_body(post_json, x)
                 if post_json[x] is None:
                     errors.append({"field": x, "reasons": ["invalid_range"]})
 
@@ -68,8 +65,6 @@ def post_new_data(request):
         return JsonResponse({"errors": errors}, status=422)
 
     data_bulletin = BulletinIssues.objects
-    data_raw = RawIssues.objects
-    data_podanie = OrPodanieIssues.objects
 
     now = timezone.now()
     max_number = data_bulletin.filter(year__gte=now.year).order_by(F('number').desc(nulls_last=True)).first().number

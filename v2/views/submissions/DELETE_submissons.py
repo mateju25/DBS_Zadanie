@@ -1,8 +1,4 @@
 from django.http import JsonResponse, HttpResponse
-from django.db import connection
-
-
-# vymaze dany zaznam idetifikovany pomocou id
 from v2.models import OrPodanieIssues, RawIssues, BulletinIssues
 
 

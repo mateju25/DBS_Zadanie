@@ -4,9 +4,6 @@ from django.db.models import Q, F, CharField
 from django.db.models.functions import Concat, Cast
 from django.http import JsonResponse
 
-# vrati json s datami, ktore odpovedaju parametrom z pola GET
-from psycopg2._psycopg import Int
-
 from v1.modelsZadanie2.validating_reformating import validate_data_from_get_int, is_date
 from v2.models import OrPodanieIssues
 
@@ -23,7 +20,7 @@ def make_dict_from_data(pa_data):
             "registration_date": x.registration_date,
             "corporate_body_name": x.corporate_body_name,
             "br_section": x.br_section,
-            # "br_insertion": x.br_insertion,
+            "br_insertion": x.br_insertion,
             "text": x.text,
             "street": x.street,
             "postal_code": x.postal_code,
@@ -81,9 +78,7 @@ def get_list_from_get_without_id(request):
 
     data = OrPodanieIssues.objects
     if "query" in params:
-        # data = data.annotate(as_char=Cast('cin', CharField())).annotate(
-        #     search_name=Concat('corporate_body_name', 'city', 'as_char')).filter(search_name__icontains=params["query"])
-        data = data.annotate(search_name=Concat('corporate_body_name', Cast('cin', CharField()), 'city')).filter(Q(search_name__icontains=params["query"]) | Q(cin__icontains=params["query"]))
+        data = data.annotate(search_name=Concat('corporate_body_name', Cast('cin', CharField()), 'city')).filter(search_name__icontains=params["query"])
 
     if "registration_date_lte" in params:
         data = data.filter(registration_date__lte=params["registration_date_lte"])
@@ -94,12 +89,11 @@ def get_list_from_get_without_id(request):
     count = data.count()
 
     if params["order_type"] == "asc":
-        data = list(data.order_by(F(params["order_by"]).asc(nulls_last=True)).all()[
-                    (params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
-
+        data = data.order_by(F(params["order_by"]).asc(nulls_last=True))
     else:
-        data = list(data.order_by(F(params["order_by"]).desc(nulls_last=True)).all()[
-                    (params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
+        data = data.order_by(F(params["order_by"]).desc(nulls_last=True))
+
+    data = list(data.all()[(params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
 
     # vytvori metadata
     metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),
@@ -108,10 +102,10 @@ def get_list_from_get_without_id(request):
 
 
 def get_list_from_get_with_id(request, id):
-    if id <= 0:
-        id = 0
-
-    x = OrPodanieIssues.objects.get(id=id)
+    try:
+        x = OrPodanieIssues.objects.get(id=id)
+    except Exception:
+        return JsonResponse({"error": {"message": "Záznam neexistuje"}}, status=404)
 
     get_json = {
         "id": x.id,
@@ -121,7 +115,7 @@ def get_list_from_get_with_id(request, id):
         "registration_date": x.registration_date,
         "corporate_body_name": x.corporate_body_name,
         "br_section": x.br_section,
-        # "br_insertion": x.br_insertion,
+        "br_insertion": x.br_insertion,
         "text": x.text,
         "street": x.street,
         "postal_code": x.postal_code,

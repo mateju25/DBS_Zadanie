@@ -1,33 +1,13 @@
-import datetime
-from django.db.models import F
 from django.http import JsonResponse
 from django.utils import timezone
-
-from v1.modelsZadanie2.validating_reformating import *
-
 import json
-
-from v2.models import BulletinIssues, RawIssues, OrPodanieIssues
-
-
-def extract_and_validate_data_from_post(pa_json, pa_key, pa_is_number=False):
-    temp = pa_json[pa_key]
-    if pa_is_number:
-        if type(temp) is int:
-            return temp
-        else:
-            return None
-    else:
-        temp = is_date(str(temp))
-        if temp is None:
-            return None
-        if temp >= datetime.now().strftime('%Y'):
-            return temp
-        else:
-            return None
+from v2.models import OrPodanieIssues
 
 
 # vlozi novy riadok do tabulky or_podanie_issues
+from v2.views.submissions.POST_submissions import extract_and_validate_data_from_body
+
+
 def put_new_data(request, id):
     errors = []
     required = ["br_court_name", "kind_name", "cin", "registration_date", "corporate_body_name",
@@ -47,13 +27,13 @@ def put_new_data(request, id):
         else:
             # ak je to parameter cin, overi ci je to cislo
             if x == 'cin':
-                post_json[x] = extract_and_validate_data_from_post(post_json, x, pa_is_number=True)
+                post_json[x] = extract_and_validate_data_from_body(post_json, x, pa_is_number=True)
                 if post_json[x] is None:
                     errors.append({"field": x, "reasons": ["not_number"]})
 
             # ak je to registration_date, overi ci datum v spravnom formate
             elif x == 'registration_date':
-                post_json[x] = extract_and_validate_data_from_post(post_json, x)
+                post_json[x] = extract_and_validate_data_from_body(post_json, x)
                 if post_json[x] is None:
                     errors.append({"field": x, "reasons": ["invalid_range"]})
 

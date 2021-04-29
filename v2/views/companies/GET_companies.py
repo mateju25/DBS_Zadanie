@@ -27,6 +27,7 @@ def make_dict_from_data(pa_data):
         })
     return result
 
+
 def get_companies(request):
     # v dictionary params sa budu nachadzat dane argumenty na filtrovanie
     params = {}
@@ -90,12 +91,11 @@ def get_companies(request):
                          konkurz_restrukturalizacia_actors_count=NullIf(Count('konkurzrestrukturalizaciaactors', distinct=True), Value(0)))
 
     if params["order_type"] == "asc":
-        data = list(data.order_by(F(params["order_by"]).asc(nulls_last=True)).all()[
-                    (params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
-
+        data = data.order_by(F(params["order_by"]).asc(nulls_last=True))
     else:
-        data = list(data.order_by(F(params["order_by"]).desc(nulls_last=True)).all()[
-                    (params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
+        data = data.order_by(F(params["order_by"]).desc(nulls_last=True))
+
+    data = list(data.all()[(params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
 
 
     # vytvori metadata
