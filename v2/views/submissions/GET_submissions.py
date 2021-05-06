@@ -93,7 +93,10 @@ def get_list_from_get_without_id(request):
     else:
         data = data.order_by(F(params["order_by"]).desc(nulls_last=True))
 
-    data = list(data.all()[(params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
+    if not (int(ceil(count / int(params["per_page"]))) < (int(params["page"]))):
+        data = list(data.all()[(params["page"] - 1) * params["per_page"]: params["page"] * params["per_page"]])
+    else:
+        data = []
 
     # vytvori metadata
     metadata = {"page": int(params["page"]), "per_page": int(params["per_page"]),

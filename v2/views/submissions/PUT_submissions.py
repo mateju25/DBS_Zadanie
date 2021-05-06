@@ -68,11 +68,10 @@ def put_new_data(request, id):
     if "city" not in post_json:
         post_json["city"] = obj.get().city
 
-    obj.update(
-                                 br_court_name=post_json["br_court_name"], kind_name=post_json["kind_name"],
-                                 cin=post_json["cin"], registration_date=post_json["registration_date"], corporate_body_name=post_json["corporate_body_name"],
-                                 br_section=post_json["br_section"], br_insertion=post_json["br_insertion"], text=post_json["text"],
-                                 updated_at=timezone.now(), street=post_json["street"], postal_code=post_json["postal_code"], city=post_json["city"])
+    obj.update(br_court_name=post_json["br_court_name"], kind_name=post_json["kind_name"],
+               cin=post_json["cin"], registration_date=post_json["registration_date"], corporate_body_name=post_json["corporate_body_name"],
+               br_section=post_json["br_section"], br_insertion=post_json["br_insertion"], text=post_json["text"],
+               updated_at=timezone.now(), street=post_json["street"], postal_code=post_json["postal_code"], city=post_json["city"])
 
     post_json["id"] = id
     return JsonResponse({"response": post_json}, status=201)
