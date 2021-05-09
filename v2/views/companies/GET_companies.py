@@ -42,7 +42,7 @@ def get_companies(request):
                "or_podanie_issues_count", "znizenie_imania_issues_count", "likvidator_issues_count",
                "konkurz_vyrovnanie_issues_count", "konkurz_restrukturalizacia_actors_count"]
     if params["order_by"] not in columns:
-        params["order_by"] = "id"
+        params["order_by"] = "cin"
 
     # overi, ci v order_type parametri je len to co tam ma byt
     params["order_type"] = request.GET.get("order_type", "desc")
